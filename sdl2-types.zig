@@ -317,13 +317,16 @@ pub const IRect = packed struct {
         };
     }
 
+    pub fn size(r: IRect) IPoint {
+        return .{ .x = r.w, .y = r.h, };
+    }
+
     pub fn center(r: IRect) IPoint {
         return .{ .x = r.x + (r.w >> 1), .y = r.y + (r.h >> 1), };
     }
 
-    pub fn inscribe(dest: IRect, targ: IRect) IRect {
-        const c = dest.center();
-        return .{ .x = c.x - (targ.w >> 1), .y = c.y - (targ.h >> 1), .w = targ.w, .h = targ.h, };
+    pub fn inscribe(targ: IRect, point: IPoint) IRect {
+        return .{ .x = point.x - (targ.w >> 1), .y = point.y - (targ.h >> 1), .w = targ.w, .h = targ.h, };
     }
 
     pub fn toSdl(r: IRect) C.SDL_Rect {

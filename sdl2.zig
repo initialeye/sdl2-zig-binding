@@ -88,6 +88,12 @@ pub const Renderer = struct {
         if(C.SDL_RenderSetViewport(r.ptr, &rect) < 0) return Error.RenderFailed;
     }
 
+    pub fn copy(r:Renderer, t: Texture, src: IRect, trg: IRect) Error!void {
+        const sdlSrc = src.toSdl();
+        const sdlTrg = trg.toSdl();
+        if (C.SDL_RenderCopy(r.ptr, t.ptr, &sdlSrc, &sdlTrg) < 0) return Error.RenderFailed;
+    }
+
     pub fn copyFull(r:Renderer, t: Texture) Error!void {
         if (C.SDL_RenderCopy(r.ptr, t.ptr, null, null) < 0) return Error.RenderFailed;
     }
@@ -95,6 +101,11 @@ pub const Renderer = struct {
     pub fn copyOriginal(r:Renderer, tex: Texture, targ: IRect) Error!void {
         const rect = targ.toSdl();
         if (C.SDL_RenderCopy(r.ptr, tex.ptr, null, &rect) < 0) return Error.RenderFailed;
+    }
+
+    pub fn copyPartial(r:Renderer, tex: Texture, src: IRect) Error!void {
+        const rect = src.toSdl();
+        if (C.SDL_RenderCopy(r.ptr, tex.ptr, &rect, null) < 0) return Error.RenderFailed;
     }
 
     pub fn setTarget(r:Renderer, t: Texture) Error!void {
