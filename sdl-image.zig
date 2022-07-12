@@ -13,3 +13,7 @@ pub fn quit() void {
     IMG.IMG_Quit();
 }
 
+pub fn loadTexture(renderer: sdl2.Renderer, file: [:0]const u8) Error!sdl2.Texture {
+    const tex = IMG.IMG_LoadTexture(renderer.ptr, file) orelse return Error.LoadFailed;
+    return sdl2.Texture{ .ptr = tex };
+}
