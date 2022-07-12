@@ -325,8 +325,25 @@ pub const IRect = packed struct {
         return .{ .x = r.x + (r.w >> 1), .y = r.y + (r.h >> 1), };
     }
 
+    pub fn end(r: IRect) IPoint {
+        return .{ .x = r.x + r.w, .y = r.y + r.h, };
+    }
+
     pub fn inscribe(targ: IRect, point: IPoint) IRect {
         return .{ .x = point.x - (targ.w >> 1), .y = point.y - (targ.h >> 1), .w = targ.w, .h = targ.h, };
+    }
+    
+    pub fn overlay(r1: IRect, r2: IRect) IRect {
+        const x = if (r1.x > r2.x) r1.x else r2.x;
+        const y = if (r1.y > r2.y) r1.y else r2.y;
+        const re1 = r1.end();
+        const re2 = r2.end();
+        return .{
+            .x = x,
+            .y = y,
+            .w = if (re1.x > re2.x) re2.x - x else re1.x - x,
+            .h = if (re1.y > re2.y) re2.y - y else re1.y - y,
+        };
     }
 
     pub fn toSdl(r: IRect) C.SDL_Rect {
