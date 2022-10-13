@@ -346,6 +346,14 @@ pub const IRect = packed struct {
         };
     }
 
+    pub fn toFloat(r: IRect) FRect {
+        return .{
+            .x = @intToFloat(f32, r.x),
+            .y = @intToFloat(f32, r.y),
+            .w = @intToFloat(f32, r.w),
+            .h = @intToFloat(f32, r.h),
+        };
+    }
     pub fn toSdl(r: IRect) C.SDL_Rect {
         return .{
             .x = r.x,
@@ -362,7 +370,15 @@ pub const FRect = packed struct {
     w: f32,
     h: f32,
 
-    pub fn toSdl(r: FRect) C.SDL_RectF {
+    pub fn toInt(r: FRect) IRect {
+        return .{
+            .x = @floatToInt(i16, r.x),
+            .y = @floatToInt(i16, r.y),
+            .w = @floatToInt(i16, r.w),
+            .h = @floatToInt(i16, r.h),
+        };
+    }
+    pub fn toSdl(r: FRect) C.SDL_FRect {
         return .{
             .x = r.x,
             .y = r.y,

@@ -9,6 +9,7 @@ pub const Event     = Types.Event;
 pub const EventType = Types.EventType;
 pub const Size      = Types.IPoint;
 pub const IRect     = Types.IRect;
+pub const FRect     = Types.FRect;
 pub const IPoint    = Types.IPoint;
 pub const FPoint    = Types.FPoint;
 pub const ButtonState = Types.ButtonState;
@@ -88,24 +89,24 @@ pub const Renderer = struct {
         if(C.SDL_RenderSetViewport(r.ptr, &rect) < 0) return Error.RenderFailed;
     }
 
-    pub fn copy(r:Renderer, t: Texture, src: IRect, trg: IRect) Error!void {
+    pub fn copy(r:Renderer, t: Texture, src: IRect, trg: FRect) Error!void {
         const sdlSrc = src.toSdl();
         const sdlTrg = trg.toSdl();
-        if (C.SDL_RenderCopy(r.ptr, t.ptr, &sdlSrc, &sdlTrg) < 0) return Error.RenderFailed;
+        if (C.SDL_RenderCopyF(r.ptr, t.ptr, &sdlSrc, &sdlTrg) < 0) return Error.RenderFailed;
     }
 
     pub fn copyFull(r:Renderer, t: Texture) Error!void {
-        if (C.SDL_RenderCopy(r.ptr, t.ptr, null, null) < 0) return Error.RenderFailed;
+        if (C.SDL_RenderCopyF(r.ptr, t.ptr, null, null) < 0) return Error.RenderFailed;
     }
 
-    pub fn copyOriginal(r:Renderer, tex: Texture, targ: IRect) Error!void {
+    pub fn copyOriginal(r:Renderer, tex: Texture, targ: FRect) Error!void {
         const rect = targ.toSdl();
-        if (C.SDL_RenderCopy(r.ptr, tex.ptr, null, &rect) < 0) return Error.RenderFailed;
+        if (C.SDL_RenderCopyF(r.ptr, tex.ptr, null, &rect) < 0) return Error.RenderFailed;
     }
 
     pub fn copyPartial(r:Renderer, tex: Texture, src: IRect) Error!void {
         const rect = src.toSdl();
-        if (C.SDL_RenderCopy(r.ptr, tex.ptr, &rect, null) < 0) return Error.RenderFailed;
+        if (C.SDL_RenderCopyF(r.ptr, tex.ptr, &rect, null) < 0) return Error.RenderFailed;
     }
 
     pub fn setTarget(r:Renderer, t: Texture) Error!void {
