@@ -294,6 +294,21 @@ pub const FPoint = packed struct {
     x: f32,
     y: f32,
 
+    pub fn init(p: C.SDL_PointF) FPoint {
+        return .{
+            .x = @floatCast(f32, p.x),
+            .y = @floatCast(f32, p.y),
+        };
+    }
+    pub fn eql(p1: FPoint, p2: FPoint) bool {
+        return p1.x == p2.x and p1.y == p2.y;
+    }
+    pub fn toInt(p: FPoint) IPoint {
+        return .{ .x = @floatToInt(i16, p.x), .y = @floatToInt(i16, p.y), };
+    }
+    pub fn toRect(p: FPoint) FRect {
+        return .{ .x = 0, .y = 0, .w = p.x, .h = p.y, };
+    }
     pub fn toSdl(p: FPoint) C.SDL_PointF {
         return .{
             .x = p.x,
@@ -370,6 +385,9 @@ pub const FRect = packed struct {
     w: f32,
     h: f32,
 
+    pub fn size(r: FRect) FPoint {
+        return .{ .x = r.w, .y = r.h, };
+    }
     pub fn toInt(r: FRect) IRect {
         return .{
             .x = @floatToInt(i16, r.x),
