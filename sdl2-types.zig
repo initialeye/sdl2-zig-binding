@@ -252,168 +252,148 @@ pub const Color = packed struct {
     }
 };
 
-pub const IPoint = packed struct {
-    x: i16 = 0,
-    y: i16 = 0,
-
-    pub fn init(p: C.SDL_Point) IPoint {
-        return .{
-            .x = @intCast(i16, p.x),
-            .y = @intCast(i16, p.y),
-        };
+pub fn Point(comptime T: type) type {
+    const isIntegral = std.meta.trait.isIntegral(T);
+    const isFloat    = std.meta.trait.isFloat(T);
+    if (!isIntegral and !isFloat) {
+        @compileError("Wrong type " ++ @typeName(T));
     }
+    const OriginStruct = if (isIntegral) C.SDL_Point else if (isFloat) C.SDL_FPoint;
+    const OriginType = if (isIntegral) c_int else if (isFloat) f32;
 
-    pub fn inside(p: IPoint, r: IRect) bool {
-        if (p.x >= r.x and p.x < r.x + r.w and p.y >= r.y and p.y < r.y + r.h) {
-            return true;
+    return packed struct {
+        x: T = 0,
+        y: T = 0,
+
+        const Self = @This();
+        const Type = T;
+
+        pub fn init(p: OriginStruct) Self {
+            return .{
+                .x = @intCast(T, p.x),
+                .y = @intCast(T, p.y),
+            };
         }
-        return false;
-    }
+        pub fn inside(p: Self, r: Rect(T)) bool {
+            if (p.x >= r.x and p.x < r.x + r.w and p.y >= r.y and p.y < r.y + r.h) {
+                return true;
+            }
+            return false;
+        }
+        pub fn eql(p1: Self, p2: Self) bool {
+            return p1.x == p2.x and p1.y == p2.y;
+        }
+        pub fn convert(p: Self, comptime t: type) t {
+            if (isIntegral) {
+                return .{
+                    .x = @intToFloat(t.Type, p.x),
+                    .y = @intToFloat(t.Type, p.y),
+            };
+            } else if (isFloat) {
+                return .{
+                    .x = @floatToInt(t.Type, p.x),
+                    .y = @floatToInt(t.Type, p.y),
+                };
+            }
+        }
+        pub fn toRect(p: Self) Rect(T) {
+            return .{ .x = 0, .y = 0, .w = p.x, .h = p.y, };
+        }
+        pub fn toSdl(p: Self) OriginStruct {
+            if (isIntegral) {
+                return OriginStruct { .x = @intCast(OriginType, p.x), .y = @intCast(OriginType, p.y), };
+            } else if (isFloat) {
+                return OriginStruct { .x = @floatCast(OriginType, p.x), .y = @floatCast(OriginType, p.y), };
+            }
+        }
+    };
+}
 
-    pub fn eql(p1: IPoint, p2: IPoint) bool {
-        return p1.x == p2.x and p1.y == p2.y;
+pub fn Rect(comptime T: type) type {
+    const isIntegral = std.meta.trait.isIntegral(T);
+    const isFloat    = std.meta.trait.isFloat(T);
+    if (!isIntegral and !isFloat) {
+        @compileError("Wrong type " ++ @typeName(T));
     }
+    const OriginStruct = if (isIntegral) C.SDL_Rect else if (isFloat) C.SDL_FRect;
+    const OriginType = if (isIntegral) c_int else if (isFloat) f32;
 
-    pub fn toFloat(p: IPoint) FPoint {
-        return .{ .x = @intToFloat(f32, p.x), .y = @intToFloat(f32, p.y), };
-    }
+    return packed struct {
+        x: T,
+        y: T,
+        w: T,
+        h: T,
 
-    pub fn toRect(p: IPoint) IRect {
-        return .{ .x = 0, .y = 0, .w = p.x, .h = p.y, };
-    }
+        const Self = @This();
+        const Type = T;
 
-    pub fn toSdl(p: IPoint) C.SDL_Point {
-        return .{
-            .x = p.x,
-            .y = p.y,
-        };
-    }
-};
-
-pub const FPoint = packed struct {
-    x: f32,
-    y: f32,
-
-    pub fn init(p: C.SDL_PointF) FPoint {
-        return .{
-            .x = @floatCast(f32, p.x),
-            .y = @floatCast(f32, p.y),
-        };
-    }
-    pub fn eql(p1: FPoint, p2: FPoint) bool {
-        return p1.x == p2.x and p1.y == p2.y;
-    }
-    pub fn toInt(p: FPoint) IPoint {
-        return .{ .x = @floatToInt(i16, p.x), .y = @floatToInt(i16, p.y), };
-    }
-    pub fn toRect(p: FPoint) FRect {
-        return .{ .x = 0, .y = 0, .w = p.x, .h = p.y, };
-    }
-    pub fn toSdl(p: FPoint) C.SDL_PointF {
-        return .{
-            .x = p.x,
-            .y = p.y,
-        };
-    }
-};
-
-pub const IRect = packed struct {
-    x: i16,
-    y: i16,
-    w: i16,
-    h: i16,
-
-    pub fn init(r: C.SDL_Rect) IRect {
-        return .{
-            .x = @intCast(i16, r.x),
-            .y = @intCast(i16, r.y),
-            .w = @intCast(i16, r.w),
-            .h = @intCast(i16, r.h),
-        };
-    }
-
-    pub fn size(r: IRect) IPoint {
-        return .{ .x = r.w, .y = r.h, };
-    }
-
-    pub fn center(r: IRect) IPoint {
-        return .{ .x = r.x + (r.w >> 1), .y = r.y + (r.h >> 1), };
-    }
-
-    pub fn end(r: IRect) IPoint {
-        return .{ .x = r.x + r.w, .y = r.y + r.h, };
-    }
-
-    pub fn inscribe(targ: IRect, point: IPoint) IRect {
-        return .{ .x = point.x - (targ.w >> 1), .y = point.y - (targ.h >> 1), .w = targ.w, .h = targ.h, };
-    }
-    
-    pub fn overlay(r1: IRect, r2: IRect) IRect {
-        const x = if (r1.x > r2.x) r1.x else r2.x;
-        const y = if (r1.y > r2.y) r1.y else r2.y;
-        const re1 = r1.end();
-        const re2 = r2.end();
-        return .{
-            .x = x,
-            .y = y,
-            .w = if (re1.x > re2.x) re2.x - x else re1.x - x,
-            .h = if (re1.y > re2.y) re2.y - y else re1.y - y,
-        };
-    }
-
-    pub fn toFloat(r: IRect) FRect {
-        return .{
-            .x = @intToFloat(f32, r.x),
-            .y = @intToFloat(f32, r.y),
-            .w = @intToFloat(f32, r.w),
-            .h = @intToFloat(f32, r.h),
-        };
-    }
-    pub fn toSdl(r: IRect) C.SDL_Rect {
-        return .{
-            .x = r.x,
-            .y = r.y,
-            .w = r.w,
-            .h = r.h,
-        };
-    }
-};
-
-pub const FRect = packed struct {
-    x: f32,
-    y: f32,
-    w: f32,
-    h: f32,
-
-    pub fn size(r: FRect) FPoint {
-        return .{ .x = r.w, .y = r.h, };
-    }
-    pub fn toInt(r: FRect) IRect {
-        return .{
-            .x = @floatToInt(i16, r.x),
-            .y = @floatToInt(i16, r.y),
-            .w = @floatToInt(i16, r.w),
-            .h = @floatToInt(i16, r.h),
-        };
-    }
-    pub fn toSdl(r: FRect) C.SDL_FRect {
-        return .{
-            .x = r.x,
-            .y = r.y,
-            .w = r.w,
-            .h = r.h,
-        };
-    }
-};
+        pub fn init(r: OriginStruct) Self {
+            return .{
+                .x = @intCast(T, r.x),
+                .y = @intCast(T, r.y),
+                .w = @intCast(T, r.w),
+                .h = @intCast(T, r.h),
+            };
+        }
+        pub fn inscribe(targ: Self, point: Point(T)) Self {
+            return .{
+                .x = point.x - @divTrunc(targ.w, 2),
+                .y = point.y - @divTrunc(targ.h, 2),
+                .w = targ.w,
+                .h = targ.h,
+            };
+        }
+        pub fn size(r: Self) Point(T) {
+            return .{ .x = r.w, .y = r.h, };
+        }
+        pub fn center(r: Self) Point(T) {
+            return .{ .x = r.x + @divTrunc(r.w, 2), .y = r.y + @divTrunc(r.h, 2), };
+        }
+        pub fn convert(r: Self, comptime t: type) t {
+            if (isIntegral) {
+                return .{
+                    .x = @intToFloat(t.Type, r.x),
+                    .y = @intToFloat(t.Type, r.y),
+                    .w = @intToFloat(t.Type, r.w),
+                    .h = @intToFloat(t.Type, r.h),
+                };
+            } else if (isFloat) {
+                return .{
+                    .x = @floatToInt(t.Type, r.x),
+                    .y = @floatToInt(t.Type, r.y),
+                    .w = @floatToInt(t.Type, r.w),
+                    .h = @floatToInt(t.Type, r.h),
+                };
+            }
+        }
+        pub fn toSdl(r: Self) OriginStruct {
+            if (isIntegral) {
+                return OriginStruct {
+                    .x = @intCast(OriginType, r.x),
+                    .y = @intCast(OriginType, r.y),
+                    .w = @intCast(OriginType, r.w),
+                    .h = @intCast(OriginType, r.h),
+                };
+            } else if (isFloat) {
+                return OriginStruct {
+                    .x = @floatCast(OriginType, r.x),
+                    .y = @floatCast(OriginType, r.y),
+                    .w = @floatCast(OriginType, r.w),
+                    .h = @floatCast(OriginType, r.h),
+                };
+            }
+        }
+    };
+}
 
 pub const VertexColor = packed struct {
-    pos:   FPoint,
+    pos:   Point(f32),
     color: Color,
 };
 
 pub const VertexTexture = packed struct {
-    pos:     FPoint,
-    texcord: FPoint,
+    pos:     Point(f32),
+    texcord: Point(f32),
 };
 
 const std = @import("std");

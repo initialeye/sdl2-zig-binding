@@ -7,11 +7,11 @@ pub const InitFlags = Types.InitFlags;
 pub const Color     = Types.Color;
 pub const Event     = Types.Event;
 pub const EventType = Types.EventType;
-pub const Size      = Types.IPoint;
-pub const IRect     = Types.IRect;
-pub const FRect     = Types.FRect;
+pub const IRect     = Types.Rect(i16);
+pub const FRect     = Types.Rect(f32);
 pub const IPoint    = Types.Point(i16);
-pub const FPoint    = Types.FPoint;
+pub const FPoint    = Types.Point(f32);
+pub const Size      = IPoint;
 pub const ButtonState = Types.ButtonState;
 
 pub fn init(flags: InitFlags) Error!void {
