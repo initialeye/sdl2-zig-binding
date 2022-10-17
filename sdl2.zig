@@ -10,7 +10,7 @@ pub const EventType = Types.EventType;
 pub const Size      = Types.IPoint;
 pub const IRect     = Types.IRect;
 pub const FRect     = Types.FRect;
-pub const IPoint    = Types.IPoint;
+pub const IPoint    = Types.Point(i16);
 pub const FPoint    = Types.FPoint;
 pub const ButtonState = Types.ButtonState;
 
@@ -146,17 +146,8 @@ pub const Renderer = struct {
         const itemsPos   = slice.items(.pos);
         const itemsColor = slice.items(.color);
         if (C.SDL_RenderGeometryRaw(r.ptr, null, @alignCast(4, &itemsPos.ptr.*.x), @sizeOf(FPoint),
-            @ptrCast(*C.SDL_Color, itemsColor.ptr), @sizeOf(Color), null, 0, @intCast(c_int, slice.len), null, 0, 4) < 0) return Error.RenderFailed;
-
-        _ = itemsColor;
-        _ = itemsPos;
-        //var v: [4]C.SDL_Vertex = undefined;
-        //v[0] = .{ .position = .{ .x =  0, .y =  0, }, .color = .{ .r = 64, .g = 64, .b = 64, .a = 128, }, .tex_coord = .{ .x = 0, .y = 0, }};
-        //v[1] = .{ .position = .{ .x = 10, .y =  0, }, .color = .{ .r = 64, .g =  0, .b = 64, .a = 128, }, .tex_coord = .{ .x = 0, .y = 0, }};
-        //v[2] = .{ .position = .{ .x = 10, .y = 10, }, .color = .{ .r = 64, .g =  0, .b =  0, .a = 128, }, .tex_coord = .{ .x = 0, .y = 0, }};
-        //v[3] = .{ .position = .{ .x =  0, .y = 10, }, .color = .{ .r =  0, .g =  0, .b =  0, .a = 128, }, .tex_coord = .{ .x = 0, .y = 0, }};
-        //if (C.SDL_RenderGeometryRaw(r.ptr, null, &v[0].position.x, @sizeOf(C.SDL_Vertex),
-        //    &v[0].color, @sizeOf(C.SDL_Vertex), null, 0, 4, null, 0, 4) < 0) return Error.RenderFailed;
+            @ptrCast(*C.SDL_Color, itemsColor.ptr), @sizeOf(Color), null, 0,
+            @intCast(c_int, slice.len), null, 0, 4) < 0) return Error.RenderFailed;
     }
 
     pub fn drawGeometryTexture(r: Renderer, tex: Texture, vertices: VerticesT) Error!void {
@@ -252,10 +243,10 @@ pub const EventHandler = struct {
             EventType.TEXTEDITING => {},
             EventType.TEXTINPUT => {},
             EventType.KEYMAPCHANGED => {},
-            EventType.MOUSEMOTION => {},
+            EventType.MOUSEMOTION => { this.motion_event(&event.motion); },
             EventType.MOUSEBUTTONDOWN,
             EventType.MOUSEBUTTONUP => { this.button_event(&event.button); },
-            EventType.MOUSEWHEEL => {},
+            EventType.MOUSEWHEEL => { this.wheel_event(&event.wheel); },
             EventType.JOYAXISMOTION => {},
             EventType.JOYBALLMOTION => {},
             EventType.JOYHATMOTION => {},
@@ -296,11 +287,15 @@ pub const EventHandler = struct {
         }
     }
 
-    fn quit_event_stub(event: *Event.Quit) void { _ = event; }
-    fn button_event_stub(event: *Event.MouseButton) void { _ = event; }
     fn adevice_event_stub(event: *Event.AudioDevice) void { _ = event; }
+    fn button_event_stub(event: *Event.MouseButton) void { _ = event; }
+    fn motion_event_stub(event: *Event.MouseMotion) void { _ = event; }
+    fn wheel_event_stub(event: *Event.MouseWheel) void { _ = event; }
+    fn quit_event_stub(event: *Event.Quit) void { _ = event; }
 
-    quit_event: fn(*Event.Quit) void = quit_event_stub,
-    button_event: fn(*Event.MouseButton) void = button_event_stub,
     adevice_event: fn(*Event.AudioDevice) void = adevice_event_stub,
+    button_event: fn(*Event.MouseButton) void = button_event_stub,
+    motion_event: fn(*Event.MouseMotion) void = motion_event_stub,
+    wheel_event: fn(*Event.MouseWheel) void = wheel_event_stub,
+    quit_event: fn(*Event.Quit) void = quit_event_stub,
 };
