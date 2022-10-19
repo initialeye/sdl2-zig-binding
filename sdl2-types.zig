@@ -283,6 +283,18 @@ pub fn Point(comptime T: type) type {
         pub fn eql(p1: Self, p2: Self) bool {
             return p1.x == p2.x and p1.y == p2.y;
         }
+        pub fn plus(p1: Self, p2: Self) Self {
+            return .{
+                .x = p1.x + p2.x,
+                .y = p1.y + p2.y,
+            };
+        }
+        pub fn minus(p1: Self, p2: Self) Self {
+            return .{
+                .x = p1.x - p2.x,
+                .y = p1.y - p2.y,
+            };
+        }
         pub fn convert(p: Self, comptime t: type) t {
             if (isIntegral) {
                 return .{
