@@ -235,49 +235,49 @@ pub const EventHandler = struct {
             EventType.APP_WILLENTERFOREGROUND => {},
             EventType.APP_DIDENTERFOREGROUND => {},
             EventType.LOCALECHANGED => {},
-            EventType.DISPLAYEVENT => {},
-            EventType.WINDOWEVENT => {},
-            EventType.SYSWMEVENT => {},
-            EventType.KEYDOWN => {},
-            EventType.KEYUP => {},
-            EventType.TEXTEDITING => {},
-            EventType.TEXTINPUT => {},
+            EventType.DISPLAYEVENT => { this.display_event(&event.display); },
+            EventType.WINDOWEVENT => { this.window_event(&event.window); },
+            EventType.SYSWMEVENT => { this.syswm_event(&event.syswm); },
+            EventType.KEYDOWN,
+            EventType.KEYUP => { this.key_event(&event.key); },
+            EventType.TEXTEDITING => { this.text_edit_event(&event.edit); },
+            EventType.TEXTINPUT => { this.text_input_event(&event.text); },
             EventType.KEYMAPCHANGED => {},
             EventType.MOUSEMOTION => { this.motion_event(&event.motion); },
             EventType.MOUSEBUTTONDOWN,
             EventType.MOUSEBUTTONUP => { this.button_event(&event.button); },
             EventType.MOUSEWHEEL => { this.wheel_event(&event.wheel); },
-            EventType.JOYAXISMOTION => {},
-            EventType.JOYBALLMOTION => {},
-            EventType.JOYHATMOTION => {},
-            EventType.JOYBUTTONDOWN => {},
-            EventType.JOYBUTTONUP => {},
-            EventType.JOYDEVICEADDED => {},
-            EventType.JOYDEVICEREMOVED => {},
-            EventType.CONTROLLERAXISMOTION => {},
-            EventType.CONTROLLERBUTTONDOWN => {},
-            EventType.CONTROLLERBUTTONUP => {},
-            EventType.CONTROLLERDEVICEADDED => {},
-            EventType.CONTROLLERDEVICEREMOVED => {},
-            EventType.CONTROLLERDEVICEREMAPPED => {},
-            EventType.CONTROLLERTOUCHPADDOWN => {},
-            EventType.CONTROLLERTOUCHPADMOTION => {},
-            EventType.CONTROLLERTOUCHPADUP => {},
-            EventType.CONTROLLERSENSORUPDATE => {},
-            EventType.FINGERDOWN => {},
-            EventType.FINGERUP => {},
-            EventType.FINGERMOTION => {},
-            EventType.DOLLARGESTURE => {},
-            EventType.DOLLARRECORD => {},
-            EventType.MULTIGESTURE => {},
+            EventType.JOYAXISMOTION => { this.joyaxis_event(&event.jaxis); },
+            EventType.JOYBALLMOTION => { this.joyball_event(&event.jball); },
+            EventType.JOYHATMOTION => { this.joyhat_event(&event.jhat); },
+            EventType.JOYBUTTONDOWN,
+            EventType.JOYBUTTONUP => { this.joybutton_event(&event.jbutton); },
+            EventType.JOYDEVICEADDED,
+            EventType.JOYDEVICEREMOVED => { this.joydevice_event(&event.jdevice); },
+            EventType.CONTROLLERAXISMOTION => { this.controller_axis_event(&event.caxis); },
+            EventType.CONTROLLERBUTTONDOWN,
+            EventType.CONTROLLERBUTTONUP => { this.controller_button_event(&event.cbutton); },
+            EventType.CONTROLLERDEVICEADDED,
+            EventType.CONTROLLERDEVICEREMOVED,
+            EventType.CONTROLLERDEVICEREMAPPED => { this.controller_device_event(&event.cdevice); },
+            EventType.CONTROLLERTOUCHPADDOWN,
+            EventType.CONTROLLERTOUCHPADMOTION,
+            EventType.CONTROLLERTOUCHPADUP => { this.controller_touchpad_event(&event.ctouchpad); },
+            EventType.CONTROLLERSENSORUPDATE => { this.controller_sensor_event(&event.csensor); },
+            EventType.FINGERDOWN,
+            EventType.FINGERUP,
+            EventType.FINGERMOTION => { this.touch_finger_event(&event.tfinger); },
+            EventType.DOLLARGESTURE,
+            EventType.DOLLARRECORD => { this.dollar_gesture_event(&event.dgesture); },
+            EventType.MULTIGESTURE => { this.multi_gesture_event(&event.mgesture); },
             EventType.CLIPBOARDUPDATE => {},
-            EventType.DROPFILE => {},
-            EventType.DROPTEXT => {},
-            EventType.DROPBEGIN => {},
-            EventType.DROPCOMPLETE => {},
+            EventType.DROPFILE,
+            EventType.DROPTEXT,
+            EventType.DROPBEGIN,
+            EventType.DROPCOMPLETE => { this.drop_event(&event.drop); },
             EventType.AUDIODEVICEADDED,
             EventType.AUDIODEVICEREMOVED => { this.adevice_event(&event.adevice); },
-            EventType.SENSORUPDATE => {},
+            EventType.SENSORUPDATE => { this.sensor_event(&event.sensor); },
             EventType.RENDER_TARGETS_RESET => {},
             EventType.RENDER_DEVICE_RESET => {},
             EventType.POLLSENTINEL => {},
@@ -289,13 +289,55 @@ pub const EventHandler = struct {
 
     fn adevice_event_stub(event: *Event.AudioDevice) void { _ = event; }
     fn button_event_stub(event: *Event.MouseButton) void { _ = event; }
+    fn controller_axis_event_stub(event: *Event.ControllerAxis) void { _ = event; }
+    fn controller_button_event_stub(event: *Event.ControllerButton) void { _ = event; }
+    fn controller_device_event_stub(event: *Event.ControllerDevice) void { _ = event; }
+    fn controller_touchpad_event_stub(event: *Event.ControllerTouchpad) void { _ = event; }
+    fn controller_sensor_event_stub(event: *Event.ControllerSensor) void { _ = event; }
+    fn display_event_stub(event: *Event.Display) void { _ = event; }
+    fn dollar_gesture_event_stub(event: *Event.DollarGesture) void { _ = event; }
+    fn drop_event_stub(event: *Event.Drop) void { _ = event; }
+    fn joyaxis_event_stub(event: *Event.JoyAxis) void { _ = event; }
+    fn joyball_event_stub(event: *Event.JoyBall) void { _ = event; }
+    fn joybutton_event_stub(event: *Event.JoyButton) void { _ = event; }
+    fn joydevice_event_stub(event: *Event.JoyDevice) void { _ = event; }
+    fn joyhat_event_stub(event: *Event.JoyHat) void { _ = event; }
+    fn key_event_stub(event: *Event.Keyboard) void { _ = event; }
     fn motion_event_stub(event: *Event.MouseMotion) void { _ = event; }
-    fn wheel_event_stub(event: *Event.MouseWheel) void { _ = event; }
+    fn multi_gesture_event_stub(event: *Event.MultiGesture) void { _ = event; }
     fn quit_event_stub(event: *Event.Quit) void { _ = event; }
+    fn sensor_event_stub(event: *Event.Sensor) void { _ = event; }
+    fn syswm_event_stub(event: *Event.SysWM) void { _ = event; }
+    fn text_edit_event_stub(event: *Event.TextEditing) void { _ = event; }
+    fn text_input_event_stub(event: *Event.TextInput) void { _ = event; }
+    fn touch_finger_event_stub(event: *Event.TouchFinger) void { _ = event; }
+    fn wheel_event_stub(event: *Event.MouseWheel) void { _ = event; }
+    fn window_event_stub(event: *Event.Window) void { _ = event; }
 
     adevice_event: fn(*Event.AudioDevice) void = adevice_event_stub,
     button_event: fn(*Event.MouseButton) void = button_event_stub,
+    controller_axis_event: fn(*Event.ControllerAxis) void = controller_axis_event_stub,
+    controller_button_event: fn(*Event.ControllerButton) void = controller_button_event_stub,
+    controller_device_event: fn(*Event.ControllerDevice) void = controller_device_event_stub,
+    controller_touchpad_event: fn(*Event.ControllerTouchpad) void = controller_touchpad_event_stub,
+    controller_sensor_event: fn(*Event.ControllerSensor) void = controller_sensor_event_stub,
+    display_event: fn(*Event.Display) void = display_event_stub,
+    dollar_gesture_event: fn(*Event.DollarGesture) void = dollar_gesture_event_stub,
+    drop_event: fn(*Event.Drop) void = drop_event_stub,
+    joyaxis_event: fn(*Event.JoyAxis) void = joyaxis_event_stub,
+    joyball_event: fn(*Event.JoyBall) void = joyball_event_stub,
+    joybutton_event: fn(*Event.JoyButton) void = joybutton_event_stub,
+    joydevice_event: fn(*Event.JoyDevice) void = joydevice_event_stub,
+    joyhat_event: fn(*Event.JoyHat) void = joyhat_event_stub,
+    key_event: fn(*Event.Keyboard) void = key_event_stub,
     motion_event: fn(*Event.MouseMotion) void = motion_event_stub,
-    wheel_event: fn(*Event.MouseWheel) void = wheel_event_stub,
+    multi_gesture_event: fn(*Event.MultiGesture) void = multi_gesture_event_stub,
     quit_event: fn(*Event.Quit) void = quit_event_stub,
+    sensor_event: fn(*Event.Sensor) void = sensor_event_stub,
+    syswm_event: fn(*Event.SysWM) void = syswm_event_stub,
+    text_edit_event: fn(*Event.TextEditing) void = text_edit_event_stub,
+    text_input_event: fn(*Event.TextInput) void = text_input_event_stub,
+    touch_finger_event: fn(*Event.TouchFinger) void = touch_finger_event_stub,
+    wheel_event: fn(*Event.MouseWheel) void = wheel_event_stub,
+    window_event: fn(*Event.Window) void = window_event_stub,
 };
